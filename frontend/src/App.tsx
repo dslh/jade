@@ -61,7 +61,37 @@ const App: React.FC = () => {
       let assistantMessage = '';
       let currentSection: keyof JobDescription | null = null;
 
+      // Add an initial empty assistant message
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+      const updateJobDescription = (content: string) => {
+        const sections: (keyof JobDescription)[] = ['title', 'description', 'qualifications', 'company', 'other'];
+
+        sections.forEach(section => {
+          const openTag = `[${section}]`;
+          const closeTag = `[/${section}]`;
+          const openIndex = content.indexOf(openTag);
+          const closeIndex = content.indexOf(closeTag);
+
+          if (openIndex !== -1) {
+            if (closeIndex !== -1 && closeIndex > openIndex) {
+              // We have a complete section
+              const sectionContent = content.slice(openIndex + openTag.length, closeIndex).trim();
+              setJobDescription(prev => ({ ...prev, [section]: sectionContent }));
+              setActiveSectionKey(section);
+            } else {
+              // We have an opening tag but no closing tag yet
+              setJobDescription(prev => ({ ...prev, [section]: '' }));
+              setActiveSectionKey(section);
+            }
+          } else if (closeIndex !== -1 && section === currentSection) {
+            // We have a closing tag for the current section
+            const sectionContent = content.slice(0, closeIndex).trim();
+            setJobDescription(prev => ({ ...prev, [section]: prev[section] + sectionContent }));
+            setActiveSectionKey(null);
+          }
+        });
+      };
 
       while (true) {
         const { done, value } = await reader.read();
@@ -79,39 +109,17 @@ const App: React.FC = () => {
               const parsedData = JSON.parse(data);
               const content = parsedData.text;
 
-              if (content.includes('[title]')) {
-                currentSection = 'title';
-                setActiveSectionKey('title');
-              } else if (content.includes('[description]')) {
-                currentSection = 'description';
-                setActiveSectionKey('description');
-              } else if (content.includes('[qualifications]')) {
-                currentSection = 'qualifications';
-                setActiveSectionKey('qualifications');
-              } else if (content.includes('[company]')) {
-                currentSection = 'company';
-                setActiveSectionKey('company');
-              } else if (content.includes('[other]')) {
-                currentSection = 'other';
-                setActiveSectionKey('other');
-              }
+              assistantMessage += content;
+              updateJobDescription(assistantMessage);
 
-              if (currentSection) {
-                setJobDescription(prev => ({
-                  ...prev,
-                  [currentSection]: prev[currentSection] + content.replace(/\[[^\]]+\]/g, '')
-                }));
-              } else {
-                assistantMessage += content;
-                setMessages(prev => {
-                  const newMessages = [...prev];
-                  newMessages[newMessages.length - 1] = {
-                    role: 'assistant',
-                    content: assistantMessage
-                  };
-                  return newMessages;
-                });
-              }
+              setMessages(prev => {
+                const newMessages = [...prev];
+                newMessages[newMessages.length - 1] = {
+                  role: 'assistant',
+                  content: assistantMessage
+                };
+                return newMessages;
+              });
             } catch (error) {
               console.error('Error parsing JSON:', error);
             }
