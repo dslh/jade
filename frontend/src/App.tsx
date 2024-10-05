@@ -2,6 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import './App.css';
 
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 interface JobDescription {
   title: string;
   description: string;
@@ -11,7 +16,7 @@ interface JobDescription {
 }
 
 const App: React.FC = () => {
-  const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [jobDescription, setJobDescription] = useState<JobDescription>({
     title: '',
@@ -43,7 +48,7 @@ const App: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ messages: newMessages }),
       });
 
       if (!response.ok) {
@@ -55,6 +60,8 @@ const App: React.FC = () => {
 
       let assistantMessage = '';
       let currentSection: keyof JobDescription | null = null;
+
+      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
       while (true) {
         const { done, value } = await reader.read();
@@ -96,10 +103,14 @@ const App: React.FC = () => {
                 }));
               } else {
                 assistantMessage += content;
-                setMessages(prev => [
-                  ...prev.slice(0, -1),
-                  { role: 'assistant', content: assistantMessage }
-                ]);
+                setMessages(prev => {
+                  const newMessages = [...prev];
+                  newMessages[newMessages.length - 1] = {
+                    role: 'assistant',
+                    content: assistantMessage
+                  };
+                  return newMessages;
+                });
               }
             } catch (error) {
               console.error('Error parsing JSON:', error);

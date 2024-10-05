@@ -1,6 +1,6 @@
 import express from 'express';
 import { config } from 'dotenv';
-import Anthropic from '@anthropic-ai/sdk';
+import AnthropicApi from '@anthropic-ai/sdk';
 import fs from 'fs/promises';
 import basicAuth from 'express-basic-auth';
 
@@ -11,7 +11,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Set up Anthropic client
-const anthropic = new Anthropic({
+const anthropic = new AnthropicApi({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
@@ -38,17 +38,17 @@ async function loadSystemPrompt() {
 
 // Endpoint for chat interaction
 app.post('/chat', async (req, res) => {
-  const { message } = req.body;
+  const { messages } = req.body;
 
-  if (!message) {
-    return res.status(400).json({ error: 'Message is required' });
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({ error: 'Valid messages array is required' });
   }
 
   try {
     const stream = await anthropic.messages.create({
-      model: 'claude-3-sonnet-20240229',
+      model: 'claude-3-5-sonnet-20240620',
       max_tokens: 1024,
-      messages: [{ role: 'user', content: message }],
+      messages: messages,
       system: systemPrompt,
       stream: true,
     });
