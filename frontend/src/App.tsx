@@ -83,6 +83,8 @@ const App: React.FC = () => {
               // We have an opening tag but no closing tag yet
               setJobDescription(prev => ({ ...prev, [section]: '' }));
               setActiveSectionKey(section);
+              const sectionContent = content.slice(openIndex + openTag.length).trim();
+              setJobDescription(prev => ({ ...prev, [section]: sectionContent }));
             }
           } else if (closeIndex !== -1 && section === currentSection) {
             // We have a closing tag for the current section
