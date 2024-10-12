@@ -102,7 +102,8 @@ const App: React.FC = () => {
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
-            const data = line.slice(5);
+            // The agent tends to use middot for bullet points, we need hyphens for markdown.
+            const data = line.slice(5).replace('•', '-');
             if (data === '[DONE]') break;
 
             try {
@@ -152,21 +153,15 @@ const App: React.FC = () => {
         </form>
       </div>
       <div className="job-description-pane">
-        <input
-          type="text"
-          value={jobDescription.title}
-          onChange={(e) => setJobDescription(prev => ({ ...prev, title: e.target.value }))}
-          placeholder="Job Title"
-          className={`job-section ${activeSectionKey === 'title' ? 'active' : ''}`}
-        />
+        <div className={`job-section ${activeSectionKey === 'title' ? 'active' : ''}`}>
+          <h2>Job Title</h2>
+          <ReactMarkdown>{jobDescription.title}</ReactMarkdown>
+        </div>
         {(['description', 'qualifications', 'company', 'other'] as const).map((section) => (
-          <textarea
-            key={section}
-            value={jobDescription[section]}
-            onChange={(e) => setJobDescription(prev => ({ ...prev, [section]: e.target.value }))}
-            placeholder={section.charAt(0).toUpperCase() + section.slice(1)}
-            className={`job-section ${activeSectionKey === section ? 'active' : ''}`}
-          />
+          <div key={section} className={`job-section ${activeSectionKey === section ? 'active' : ''}`}>
+            <h2>{section.charAt(0).toUpperCase() + section.slice(1)}</h2>
+            <ReactMarkdown>{jobDescription[section]}</ReactMarkdown>
+          </div>
         ))}
       </div>
     </div>
