@@ -5,6 +5,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Message } from '../types';
+import './ChatPane.css';
 
 interface ChatPaneProps {
   messages: Message[];
