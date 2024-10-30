@@ -57,10 +57,38 @@ app.post('/chat', async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
+    let buffer = '';
+    let inBrackets = false;
     for await (const chunk of stream) {
-      if (chunk.type === 'content_block_delta') {
-        res.write(`data: ${JSON.stringify(chunk.delta)}\n\n`);
+      if (chunk.type === 'content_block_delta' && 'text' in chunk.delta && chunk.delta.text) {
+        const text = chunk.delta.text;
+        for (let i = 0; i < text.length; i++) {
+          if (text[i] === '[') {
+            if (buffer) {
+              res.write(`data: ${JSON.stringify({ text: buffer })}\n\n`);
+              buffer = '';
+            }
+            inBrackets = true;
+          }
+
+          buffer += text[i];
+
+          if (text[i] === ']' && inBrackets) {
+            res.write(`data: ${JSON.stringify({ text: buffer })}\n\n`);
+            buffer = '';
+            inBrackets = false;
+          }
+        }
+
+        if (!inBrackets && buffer) {
+          res.write(`data: ${JSON.stringify({ text: buffer })}\n\n`);
+          buffer = '';
+        }
       }
+    }
+    // Send any remaining buffer content
+    if (buffer) {
+      res.write(`data: ${JSON.stringify({ text: buffer })}\n\n`);
     }
 
     res.write('data: [DONE]\n\n');
