@@ -19,7 +19,7 @@
 
 .message {
   max-width: 70%;
-  padding: 0.8rem 1rem;
+  padding: 0.5rem 1rem;
   border-radius: 1rem;
   line-height: 1.4;
 }
@@ -41,7 +41,7 @@
 
 /* Style markdown content inside messages */
 .message p {
-  margin: 0;
+  margin: 0.5rem 0;
 }
 
 .message pre {
