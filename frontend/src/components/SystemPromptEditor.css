@@ -47,4 +47,14 @@
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.modified-indicator {
+  color: #2196f3;
+  margin-left: 5px;
+  font-size: 1.2em;
+}
+
+.system-prompt-button.modified {
+  border-color: #2196f3;
 } 
