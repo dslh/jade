@@ -38,7 +38,7 @@ async function loadSystemPrompt() {
 
 // Endpoint for chat interaction
 app.post('/chat', async (req, res) => {
-  const { messages } = req.body;
+  const { messages, systemPrompt: customSystemPrompt } = req.body;
 
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: 'Valid messages array is required' });
@@ -49,7 +49,7 @@ app.post('/chat', async (req, res) => {
       model: 'claude-3-5-sonnet-20240620',
       max_tokens: 1024,
       messages: messages,
-      system: systemPrompt,
+      system: customSystemPrompt || systemPrompt,
       stream: true,
     });
 
@@ -97,6 +97,11 @@ app.post('/chat', async (req, res) => {
     console.error('Error interacting with Anthropic API:', error);
     res.status(500).json({ error: 'Failed to process the request' });
   }
+});
+
+// Endpoint to fetch system prompt
+app.get('/system-prompt', (req, res) => {
+  res.json({ systemPrompt });
 });
 
 // Start the server
