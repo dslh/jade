@@ -1,0 +1,45 @@
+.suggestion-container {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.suggestion-container.interactive {
+  cursor: pointer;
+}
+
+.suggestion-container.interactive:hover {
+  background-color: #f9fafb;
+}
+
+.icon-container {
+  width: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.arrow-icon {
+  color: #9ca3af;
+}
+
+.content-container {
+  margin-left: 1rem;
+  flex: 1;
+}
+
+.suggestion-title {
+  font-weight: 600;
+  color: #374151;
+}
+
+.preview-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  background: linear-gradient(to right, currentColor 60%, transparent);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+} 
