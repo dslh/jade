@@ -47,7 +47,6 @@ export const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, onS
     return result;
   }, [message.content]);
 
-  debugger;
   return (
     <>
       {parts.map((part, index) => 

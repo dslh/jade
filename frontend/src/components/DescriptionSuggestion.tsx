@@ -1,6 +1,7 @@
 import React from 'react';
 import { CircleLoader } from 'react-spinners';
 import { JobDescriptionSection } from '../types';
+import './DescriptionSuggestion.css';
 
 interface DescriptionSuggestionProps {
   type: JobDescriptionSection;
@@ -26,32 +27,22 @@ export const DescriptionSuggestion: React.FC<DescriptionSuggestionProps> = ({
 
   return (
     <div 
-      className={`
-        flex items-center p-4 rounded-lg border border-gray-200 
-        ${!isStreaming ? 'hover:bg-gray-50 cursor-pointer' : ''}
-      `}
+      className={`suggestion-container ${!isStreaming ? 'interactive' : ''}`}
       onClick={() => !isStreaming && onSelect(type, text)}
     >
-      <div className="w-8 flex justify-center">
+      <div className="icon-container">
         {isStreaming ? (
           <CircleLoader size={20} color="#6B7280" />
         ) : (
-          <span className="text-gray-400">→</span>
+          <span className="arrow-icon">→</span>
         )}
       </div>
       
-      <div className="ml-4 flex-1">
-        <div className="font-semibold text-gray-700">
+      <div className="content-container">
+        <div className="suggestion-title">
           {typeDisplayNames[type]} Suggestion
         </div>
-        <div 
-          className="text-sm text-gray-500 mt-1"
-          style={{
-            background: 'linear-gradient(to right, currentColor 60%, transparent)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
+        <div className="preview-text">
           {previewText}
         </div>
       </div>
