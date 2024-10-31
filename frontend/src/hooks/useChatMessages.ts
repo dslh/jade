@@ -15,6 +15,7 @@ export const useChatMessages = () => {
     other: ''
   });
   const [activeSectionKey, setActiveSectionKey] = useState<keyof JobDescription | null>(null);
+  const [systemPrompt, setSystemPrompt] = useState<string | null>(null);
 
   const handleNewMessage = useCallback(async (input: string) => {
     const newMessages = [...messages, { role: 'user' as const, content: input }];
@@ -26,7 +27,7 @@ export const useChatMessages = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({ messages: newMessages, systemPrompt }),
       });
 
       if (!response.ok) {
@@ -104,7 +105,7 @@ export const useChatMessages = () => {
     } catch (error) {
       console.error('Error:', error);
     }
-  }, [messages]);
+  }, [messages, systemPrompt]);
 
-  return { messages, jobDescription, activeSectionKey, handleNewMessage };
+  return { messages, jobDescription, activeSectionKey, handleNewMessage, setSystemPrompt };
 };
