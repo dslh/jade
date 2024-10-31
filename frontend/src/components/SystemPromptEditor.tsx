@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './SystemPromptEditor.css';
 
 interface SystemPromptEditorProps {
-  setSystemPrompt: (prompt: string) => void;
+  setSystemPrompt: (prompt: string | null) => void;
 }
 
 export const SystemPromptEditor: React.FC<SystemPromptEditorProps> = ({ setSystemPrompt }) => {
@@ -10,16 +10,43 @@ export const SystemPromptEditor: React.FC<SystemPromptEditorProps> = ({ setSyste
   const [promptText, setPromptText] = useState('');
 
   useEffect(() => {
-    // Fetch initial system prompt
-    fetch('/system-prompt')
-      .then(response => response.json())
-      .then(data => setPromptText(data.systemPrompt))
-      .catch(error => console.error('Failed to fetch system prompt:', error));
-  }, []);
+    // Check localStorage first
+    const cachedPrompt = localStorage.getItem('systemPrompt');
+    if (cachedPrompt) {
+      setPromptText(cachedPrompt);
+      setSystemPrompt(cachedPrompt);
+    } else {
+      // Fetch from server if no cached value exists
+      fetch('/system-prompt')
+        .then(response => response.json())
+        .then(data => {
+          setPromptText(data.systemPrompt);
+          setSystemPrompt(data.systemPrompt);
+          localStorage.setItem('systemPrompt', data.systemPrompt);
+        })
+        .catch(error => console.error('Failed to fetch system prompt:', error));
+    }
+  }, [setSystemPrompt]);
 
   const handleSave = () => {
+    localStorage.setItem('systemPrompt', promptText);
     setSystemPrompt(promptText);
     setIsOpen(false);
+  };
+
+  const fetchDefaultPrompt = () => {
+    fetch('/system-prompt')
+      .then(response => response.json())
+      .then(data => {
+        setPromptText(data.systemPrompt);
+      })
+      .catch(error => console.error('Failed to fetch system prompt:', error));
+  };
+
+  const handleReset = () => {
+    localStorage.removeItem('systemPrompt');
+    setSystemPrompt(null);
+    fetchDefaultPrompt();
   };
 
   return (
@@ -42,6 +69,7 @@ export const SystemPromptEditor: React.FC<SystemPromptEditorProps> = ({ setSyste
             />
             <div className="modal-buttons">
               <button onClick={() => setIsOpen(false)}>Cancel</button>
+              <button onClick={handleReset}>Reset</button>
               <button onClick={handleSave}>Save</button>
             </div>
           </div>
