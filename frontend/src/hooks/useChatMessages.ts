@@ -17,7 +17,7 @@ export const useChatMessages = () => {
   const [activeSectionKey, setActiveSectionKey] = useState<keyof JobDescription | null>(null);
 
   const handleNewMessage = useCallback(async (input: string) => {
-    const newMessages = [...messages, { role: 'user', content: input }];
+    const newMessages = [...messages, { role: 'user' as const, content: input }];
     setMessages(newMessages);
 
     try {
