@@ -5,6 +5,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { JobDescription } from '../types';
+import './JobDescriptionPane.css';
 
 interface JobDescriptionPaneProps {
   jobDescription: JobDescription;
