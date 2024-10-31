@@ -14,3 +14,5 @@ export interface JobDescription {
   company: string;
   other: string;
 }
+
+export type JobDescriptionSection = 'title' | 'description' | 'qualifications' | 'company' | 'other';

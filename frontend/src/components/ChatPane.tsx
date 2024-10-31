@@ -6,6 +6,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Message } from '../types';
 import './ChatPane.css';
+import { AssistantMessage } from './AssistantMessage';
 
 interface ChatPaneProps {
   messages: Message[];
@@ -34,7 +35,11 @@ export const ChatPane: React.FC<ChatPaneProps> = ({ messages, onSendMessage }) =
       <div className="chat-messages" ref={chatRef}>
         {messages.map((msg, index) => (
           <div key={index} className={`message ${msg.role}`}>
-            <ReactMarkdown>{msg.content}</ReactMarkdown>
+            {msg.role === 'assistant' ? (
+              <AssistantMessage message={msg} onSelectSuggestion={() => {}} />
+            ) : (
+              <ReactMarkdown>{msg.content}</ReactMarkdown>
+            )}
           </div>
         ))}
       </div>
