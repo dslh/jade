@@ -5,19 +5,18 @@
 import { useState, useCallback } from 'react';
 import { Message, JobDescription } from '../types';
 
-export const useChatMessages = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [jobDescription, setJobDescription] = useState<JobDescription>({
-    title: '',
-    description: '',
-    qualifications: '',
-    company: '',
-    other: ''
-  });
-  const [activeSectionKey, setActiveSectionKey] = useState<keyof JobDescription | null>(null);
+export const useChatMessages = (setJobDescription: (section: keyof JobDescription, content: string) => void) => {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'assistant',
+      content: "Hello! Please allow me to help you draft a job advertisement. What position are you looking to fill? Could you tell me about the main responsibilities and duties of this role?"
+    }
+  ]);
   const [systemPrompt, setSystemPrompt] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
 
   const handleNewMessage = useCallback(async (input: string) => {
+    setDone(false);
     const newMessages = [...messages, { role: 'user' as const, content: input }];
     setMessages(newMessages);
 
@@ -53,20 +52,21 @@ export const useChatMessages = () => {
           if (openIndex !== -1) {
             if (closeIndex !== -1 && closeIndex > openIndex) {
               const sectionContent = content.slice(openIndex + openTag.length, closeIndex).trim();
-              setJobDescription(prev => ({ ...prev, [section]: sectionContent }));
-              setActiveSectionKey(section);
+              setJobDescription(section, sectionContent);
             } else {
-              setJobDescription(prev => ({ ...prev, [section]: '' }));
-              setActiveSectionKey(section);
               const sectionContent = content.slice(openIndex + openTag.length).trim();
-              setJobDescription(prev => ({ ...prev, [section]: sectionContent }));
+              setJobDescription(section, sectionContent);
             }
           } else if (closeIndex !== -1) {
             const sectionContent = content.slice(0, closeIndex).trim();
-            setJobDescription(prev => ({ ...prev, [section]: prev[section] + sectionContent }));
-            setActiveSectionKey(null);
+            setJobDescription(section, sectionContent);
           }
         });
+
+        if (content.includes('[done]')) {
+          content = content.replace('[done]', '');
+          setDone(true);
+        }
       };
 
       while (true) {
@@ -79,14 +79,17 @@ export const useChatMessages = () => {
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             const data = line.slice(5).replace('•', '-');
-            if (data === '[DONE]') break;
 
             try {
               const parsedData = JSON.parse(data);
               const content = parsedData.text;
 
-              assistantMessage += content;
-              updateJobDescription(assistantMessage);
+              if (content === '[done]') {
+                setDone(true);
+              } else {
+                assistantMessage += content;
+                updateJobDescription(assistantMessage);
+              }
 
               setMessages(prev => {
                 const newMessages = [...prev];
@@ -105,7 +108,7 @@ export const useChatMessages = () => {
     } catch (error) {
       console.error('Error:', error);
     }
-  }, [messages, systemPrompt]);
+  }, [messages, systemPrompt, setJobDescription]);
 
-  return { messages, jobDescription, activeSectionKey, handleNewMessage, setSystemPrompt };
+  return { messages, handleNewMessage, setSystemPrompt, done };
 };

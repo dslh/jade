@@ -8,21 +8,42 @@
 
 .job-section {
   margin-bottom: 1rem;
-  padding: 0.5rem;
+  padding: 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.job-section .job-section-title {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  color: #666;
+  padding: 0.2rem 0.4rem;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #ddd;
+}
+
+.job-section .job-section-content {
+  padding: 0.4rem;
 }
 
 .job-section.active {
   animation: pulse 1s 3;
+  background-color: rgba(0, 123, 255, 0.05);
+  transition: background-color 0.3s ease;
 }
 
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+    border-color: #0d6efd;
   }
   70% {
     box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+    border-color: #0d6efd;
   }
   100% {
     box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+    border-color: #ddd;
   }
 } 

@@ -7,13 +7,15 @@ import ReactMarkdown from 'react-markdown';
 import { Message } from '../types';
 import './ChatPane.css';
 import { AssistantMessage } from './AssistantMessage';
+import { JobDescription } from '../types';
 
 interface ChatPaneProps {
   messages: Message[];
   onSendMessage: (message: string) => void;
+  setJobDescription: (section: keyof JobDescription, content: string) => void;
 }
 
-export const ChatPane: React.FC<ChatPaneProps> = ({ messages, onSendMessage }) => {
+export const ChatPane: React.FC<ChatPaneProps> = ({ messages, onSendMessage, setJobDescription }) => {
   const [input, setInput] = useState('');
   const chatRef = useRef<HTMLDivElement>(null);
 
@@ -36,7 +38,7 @@ export const ChatPane: React.FC<ChatPaneProps> = ({ messages, onSendMessage }) =
         {messages.map((msg, index) => (
           <div key={index} className={`message ${msg.role}`}>
             {msg.role === 'assistant' ? (
-              <AssistantMessage message={msg} onSelectSuggestion={() => {}} />
+              <AssistantMessage message={msg} onSelectSuggestion={setJobDescription} />
             ) : (
               <ReactMarkdown>{msg.content}</ReactMarkdown>
             )}
